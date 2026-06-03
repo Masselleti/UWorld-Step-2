@@ -1427,9 +1427,43 @@ img {
             background: transparent !important;
         }
         .nbme-skin.uw-skin .question-stem p { margin-bottom: 10px; }
-        .nbme-skin.uw-skin .question-stem img {
-            max-width: 100%; cursor: zoom-in; margin: 8px 0;
+        .nbme-skin.uw-skin .question-stem img,
+        .nbme-skin.uw-skin .commentary-content img,
+        .nbme-skin.uw-skin .answer-option img {
+            max-width: 700px !important;
+            max-height: 60vh !important;
+            width: auto !important;
+            height: auto !important;
+            cursor: zoom-in; margin: 8px 0;
             border: 1px solid #d2d6db; display: block;
+            object-fit: contain;
+        }
+
+        /* Hyperlinks in question stems / answers / explanations — underlined blue
+           so they're recognizable as links. Inline styles on <a> tags from the
+           source HTML get overridden so the styling is consistent. */
+        .nbme-skin.uw-skin .question-stem a,
+        .nbme-skin.uw-skin .commentary-content a,
+        .nbme-skin.uw-skin .answer-option a {
+            color: #1f72b8 !important;
+            text-decoration: underline !important;
+            cursor: pointer;
+        }
+        .nbme-skin.uw-skin .question-stem a:hover,
+        .nbme-skin.uw-skin .commentary-content a:hover,
+        .nbme-skin.uw-skin .answer-option a:hover {
+            color: #155389 !important;
+        }
+        /* Reverse-color mode link tint */
+        .nbme-skin.uw-skin.nbme-reverse .question-stem a,
+        .nbme-skin.uw-skin.nbme-reverse .commentary-content a,
+        .nbme-skin.uw-skin.nbme-reverse .answer-option a {
+            color: #6aa9ff !important;
+        }
+        .nbme-skin.uw-skin.nbme-reverse .question-stem a:hover,
+        .nbme-skin.uw-skin.nbme-reverse .commentary-content a:hover,
+        .nbme-skin.uw-skin.nbme-reverse .answer-option a:hover {
+            color: #9ec8ff !important;
         }
 
         .nbme-skin.uw-skin .answer-options {
@@ -1573,6 +1607,8 @@ img {
             border: 1px solid #b0b8c4 !important;
             margin: 12px auto !important;
             background: #fff !important;
+            max-width: 900px !important;
+            width: auto !important;
         }
         .nbme-skin.uw-skin .commentary-content table td,
         .nbme-skin.uw-skin .commentary-content table th {
@@ -4279,6 +4315,37 @@ function updateSelectedInfo() {
             if (!src) return;
             e.preventDefault();
             openMediaModal(src, img.getAttribute('alt') || '');
+        });
+
+        // Delegated click handler for hyperlinks in question/explanation areas.
+        // UWorld's source HTML embeds two kinds of <a href="..."> links:
+        //   - media references (media/L12345.png) → open in the zoom modal
+        //   - cross-refs to other questions (34651.html) → dead in this app
+        // The browser would otherwise navigate away to an error page.
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link) return;
+            if (link.closest('#media-modal')) return;
+            if (!link.closest('.question-stem, .answer-option, .commentary-content, .uw-main')) return;
+            const href = link.getAttribute('href') || '';
+            if (!href) return;
+            e.preventDefault();
+            e.stopPropagation();
+            // Image references → resolve to the question's media folder and open the modal
+            if (/\.(png|jpe?g|gif|webp|bmp)(\?|#|$)/i.test(href)) {
+                const filename = href.split('/').pop().split('\\').pop();
+                const fullPath = `./assets/Data/${currentDatabasePath}/media/${filename}`;
+                // Use title attr if present; otherwise no caption (link textContent
+                // like "biphasic" isn't a caption — it's just the clicked word).
+                openMediaModal(fullPath, link.getAttribute('title') || '');
+                return;
+            }
+            // External http(s) URLs → new tab
+            if (/^https?:\/\//i.test(href)) {
+                window.open(href, '_blank', 'noopener');
+                return;
+            }
+            // Cross-reference (.html) and other internal links → no-op (don't navigate)
         });
 
         // Allow Escape to close the media modal too.
