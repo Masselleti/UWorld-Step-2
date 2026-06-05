@@ -35,7 +35,7 @@ body{
   line-height:1.6;
 }
 .container{
-  max-width: calc(100vw - 24px); width: calc(100vw - 24px);
+  width:100%; max-width:100%;
   margin:0 auto;background:var(--card);
   border-radius:var(--radius);
   border:1px solid var(--border);
@@ -92,9 +92,11 @@ a:hover{filter:brightness(.9)}
     radial-gradient(1200px 600px at 10% -20%, rgba(170,222,245,.2), transparent 60%),
     radial-gradient(800px 400px at 110% 0%, rgba(11,74,111,.08), transparent 50%),
     linear-gradient(145deg, var(--primary) 0%, #0b4a6f 100%);
-  color:#fff; text-align:center; padding:56px 28px 44px;
+  color:#fff; text-align:center; padding:24px 28px;
+  display:flex; align-items:center; justify-content:center; gap:18px;
   box-shadow:0 8px 24px rgba(0,0,0,.10);
 }
+.header h4{margin:0;color:#fff;}
 .header h1{font-size:2.02em;letter-spacing:.2px;margin-bottom:6px;color:#fff}
 .header p{font-size:1.05em;color:var(--accent);opacity:.95;margin-bottom:6px}
 
@@ -105,11 +107,11 @@ a:hover{filter:brightness(.9)}
   align-items:center;
   justify-content:center;
   gap:4px;
-  margin-bottom:18px;
+  margin-bottom:0;
 }
 .uworld-logo-img{
-  width:96px;
-  height:96px;
+  width:56px;
+  height:56px;
   border-radius:50%;
   object-fit:contain;
 }
@@ -208,6 +210,10 @@ a:hover{filter:brightness(.9)}
   column-count: 2;
   column-gap: 32px;
   max-height: none;
+}
+/* Exam topic tree: taller frame so less scrolling after expanding a subject */
+#exam-categories .tree-view{
+  max-height: 75vh;
 }
 #learning-categories-tree .tree-view > .tree-node.is-subject{
   break-inside: avoid;
@@ -1279,8 +1285,12 @@ img {
         }
 
         /* Hide the page topbar + hero while inside a question block */
+        /* Global theme toggle pinned on the same row as the Back button */
+        #dark-toggle { position: fixed; top: 151px; right: 38px; z-index: 1200; }
+
         body.in-nbme-question .topbar,
         body.in-nbme-question .header,
+        body.in-nbme-question #dark-toggle,
         body.in-nbme-question .ma-footer { display: none !important; }
         body.in-nbme-question { padding: 0 !important; background: #fff !important; }
         body.in-nbme-question .container {
@@ -1399,6 +1409,10 @@ img {
         .uw-q-item.is-correct .uw-q-bullet { background: #1f8a4c; border-color: #1f8a4c; }
         .uw-q-item.is-incorrect .uw-q-bullet { background: #c0392b; border-color: #c0392b; }
         .uw-q-flag { font-size: 13px; margin-left: auto; line-height: 1; }
+        /* Sidebar question numbers: keep dark in normal mode so they don't
+           inherit a light global-dark-theme color and vanish on the sidebar. */
+        .nbme-skin.uw-skin:not(.nbme-reverse) .uw-q-item,
+        .nbme-skin.uw-skin:not(.nbme-reverse) .uw-q-num { color: #333 !important; }
 
         /* MAIN CONTENT */
         .uw-main {
@@ -1427,6 +1441,13 @@ img {
             background: transparent !important;
         }
         .nbme-skin.uw-skin .question-stem p { margin-bottom: 10px; }
+/* Force solid dark stem text in normal (non-reverse) mode so the stem can
+   never render faint/white from a stray inline or injected light color. */
+.nbme-skin.uw-skin:not(.nbme-reverse) .question-stem,
+.nbme-skin.uw-skin:not(.nbme-reverse) .question-stem *:not(a),
+.nbme-skin.uw-skin:not(.nbme-reverse) .uw-mark-row {
+    color: #222 !important;
+}
         .nbme-skin.uw-skin .question-stem img,
         .nbme-skin.uw-skin .commentary-content img,
         .nbme-skin.uw-skin .answer-option img {
@@ -1871,7 +1892,27 @@ img {
         .nbme-skin.uw-skin.nbme-reverse .uw-q-item.is-incorrect .uw-q-bullet { background: #ff6b6b !important; border-color: #ff6b6b !important; }
         .nbme-skin.uw-skin.nbme-reverse .uw-bottom-bar { background: #2a2a2a !important; border-color: #4a4a4a !important; color: #ddd !important; }
         .nbme-skin.uw-skin.nbme-reverse .uw-bottom-tool { color: #ddd !important; }
+        /* End Block: clearly white (icon + text) in reverse mode */
+        .nbme-skin.uw-skin.nbme-reverse .uw-bottom-tool.is-end,
+        .nbme-skin.uw-skin.nbme-reverse .uw-bottom-tool.is-end .uw-bottom-tool-icon { color: #fff !important; }
         .nbme-skin.uw-skin.nbme-reverse .uw-mark-row { color: #ddd !important; }
+
+        /* Keep the circular Previous/Next nav buttons outlined in reverse mode */
+        .nbme-skin.uw-skin.nbme-reverse .uw-nav-btn {
+            background: transparent !important;
+            border: 1.5px solid #fff !important;
+            color: #fff !important;
+        }
+        .nbme-skin.uw-skin.nbme-reverse .uw-nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.08) !important;
+            border-color: #5cb8ff !important;
+        }
+        .nbme-skin.uw-skin.nbme-reverse .uw-nav-btn[onclick*="previous" i] .uw-nav-icon {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M15 18l-6-6 6-6'/></svg>") !important;
+        }
+        .nbme-skin.uw-skin.nbme-reverse .uw-nav-btn[onclick*="next" i] .uw-nav-icon {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M9 6l6 6-6 6'/></svg>") !important;
+        }
 
         /* Show explanation immediately once commentary has .show */
         .nbme-skin.uw-skin .commentary { display: none; }
@@ -1961,21 +2002,19 @@ img {
                 <div class="title">Medicine Academy</div>
             </div>
         </div>
-        <button class="topbar-back-btn" id="topbar-back-btn" onclick="uwExitToHome()" style="display:none; position:absolute; left:16px; top:16px; z-index:10;" title="Back to Dashboard">
-            <span class="back-arrow" aria-hidden="true">&#8592;</span>Dashboard
-        </button>
-
         <div class="header">
             <div class="uworld-logo-wrap uworld-logo-anim">
             <img src="assets/Data/bv.png" alt="Uworld Logo" class="uworld-logo-img"></div>
             <h4>UWorld USMLE Step2CK QBank 2025</h4>
         </div>
 
+        <!-- Global theme toggle: visible on all selection screens, hidden in questions -->
+        <button class="toggle-btn" id="dark-toggle">☀️ Light Mode</button>
+
         <div id="main-menu" class="content-section active">
             <div class="content">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
                     <h2 style="margin:0; color: var(--primary);">Choose Your Learning Path</h2>
-                    <button class="toggle-btn" id="dark-toggle">☀️ Light Mode</button>
                 </div>
                 <div class="main-menu">
                     <div class="menu-card" id="learning-mode-menu">
@@ -2423,10 +2462,41 @@ img {
             showSection('main-menu');
         });
 
+        // Keep the Light/Dark toggle on the same row and height as the visible
+        // "Back" button (falls back to the active section heading on the main
+        // menu, which has no Back button).
+        function alignDarkToggle() {
+            const tog = document.getElementById('dark-toggle');
+            if (!tog) return;
+            if (document.body.classList.contains('in-nbme-question')) return;
+            let ref = null;
+            ['back-from-learning', 'back-from-exam'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!ref && el && el.offsetParent !== null) ref = el;
+            });
+            if (!ref) ref = document.querySelector('.content-section.active .content h2');
+            if (!ref) { tog.style.top = '151px'; tog.style.height = ''; tog.style.minHeight = ''; return; }
+            const r = ref.getBoundingClientRect();
+            if (ref.tagName === 'BUTTON') {
+                tog.style.height = r.height + 'px';
+                tog.style.minHeight = r.height + 'px';
+            } else {
+                tog.style.height = '';
+                tog.style.minHeight = '';
+            }
+            const togH = tog.offsetHeight || r.height;
+            tog.style.top = (r.top + r.height / 2 - togH / 2) + 'px';
+        }
+        window.addEventListener('resize', alignDarkToggle);
+        window.addEventListener('scroll', alignDarkToggle, { passive: true });
+        window.addEventListener('load', alignDarkToggle);
+
         function showSection(sectionId) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            requestAnimationFrame(alignDarkToggle);
+            setTimeout(alignDarkToggle, 50);
             const __backBtn = document.getElementById('topbar-back-btn');
             if (__backBtn) __backBtn.style.display = (sectionId === 'main-menu') ? 'none' : 'inline-flex';
             if (sectionId === 'main-menu') {
@@ -3182,6 +3252,102 @@ img {
 			}
 		}
 
+		// --- Linked multi-item questions ("Item 1 of N" ... "Item N of N") ---
+		// Returns the selected questions grouped so a linked sequence stays
+		// contiguous and in order. GROUPS are shuffled; order WITHIN a set is kept.
+		async function groupAndShuffleLinked(items) {
+			const byPath = new Map();
+			items.forEach(it => {
+				if (!byPath.has(it.dbPath)) byPath.set(it.dbPath, []);
+				byPath.get(it.dbPath).push(it);
+			});
+
+			// pos/total + subId/sysId for every selected question.
+			const info = new Map(); // dbPath + '#' + id -> { pos, total, sub, sys }
+			for (const [dbPath, list] of byPath) {
+				const ok = await loadDatabaseForPath(dbPath);
+				if (!ok) continue;
+				const ids = list.map(it => it.id);
+				const res = currentDatabase.exec(
+					`SELECT id, question, subId, sysId FROM Questions WHERE id IN (${ids.join(',')})`
+				);
+				if (res.length && res[0].values.length) {
+					res[0].values.forEach(row => {
+						const m = /Item\s+(\d+)\s+of\s+(\d+)/i.exec(row[1] || '');
+						if (m) info.set(dbPath + '#' + row[0], { pos: parseInt(m[1]), total: parseInt(m[2]), sub: row[2], sys: row[3] });
+					});
+				}
+			}
+
+			const groups = [];
+			for (const [dbPath, list] of byPath) {
+				const sorted = list.slice().sort((a, b) => a.id - b.id);
+				const byId = new Map(sorted.map(it => [it.id, it]));
+				const used = new Set();
+				const metaOf = it => info.get(dbPath + '#' + it.id);
+
+				// Pass 1: linked items stored as consecutive ascending ids (the norm).
+				for (const it of sorted) {
+					if (used.has(it.id)) continue;
+					const meta = metaOf(it);
+					if (meta && meta.pos === 1 && meta.total > 1) {
+						const seq = [];
+						let nextId = it.id + 1, expected = 2, okSeq = true;
+						while (expected <= meta.total) {
+							const cand = byId.get(nextId);
+							const cmeta = cand ? metaOf(cand) : null;
+							if (cand && !used.has(nextId) && cmeta && cmeta.pos === expected && cmeta.total === meta.total) {
+								seq.push(cand); nextId++; expected++;
+							} else { okSeq = false; break; }
+						}
+						if (okSeq) {
+							used.add(it.id);
+							const group = [it];
+							seq.forEach(s => { group.push(s); used.add(s.id); });
+							groups.push(group);
+						}
+					}
+				}
+
+				// Pass 2: items stored out of id order. Pair a leftover "Item 1 of N"
+				// with the nearest unused partner sharing subId + sysId + total.
+				for (const it of sorted) {
+					if (used.has(it.id)) continue;
+					const meta = metaOf(it);
+					if (meta && meta.pos === 1 && meta.total > 1) {
+						const group = [it];
+						const claimed = new Set([it.id]);
+						for (let p = 2; p <= meta.total; p++) {
+							let best = null, bestDist = Infinity;
+							for (const cand of sorted) {
+								if (used.has(cand.id) || claimed.has(cand.id)) continue;
+								const cm = metaOf(cand);
+								if (cm && cm.pos === p && cm.total === meta.total && cm.sub === meta.sub && cm.sys === meta.sys) {
+									const d = Math.abs(cand.id - it.id);
+									if (d < bestDist) { bestDist = d; best = cand; }
+								}
+							}
+							if (best) { group.push(best); claimed.add(best.id); } else break;
+						}
+						claimed.forEach(id => used.add(id));
+						groups.push(group);
+					}
+				}
+
+				// Remaining standalone questions (and any orphan later-items).
+				for (const it of sorted) {
+					if (used.has(it.id)) continue;
+					groups.push([it]); used.add(it.id);
+				}
+			}
+
+			for (let i = groups.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[groups[i], groups[j]] = [groups[j], groups[i]];
+			}
+			return groups;
+		}
+
 		async function startLearningQuiz() {
 			const checked = Array.from(document.querySelectorAll('#learning-categories-tree .tree-checkbox.is-leaf:checked'));
 			if (checked.length === 0) {
@@ -3222,11 +3388,9 @@ img {
 				return;
 			}
 
-			// Fisher–Yates shuffle so questions from all selected topics interleave
-			for (let i = currentQuestions.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
-			}
+			// Shuffle but keep linked "Item X of N" sets together and in order.
+			const learningGroups = await groupAndShuffleLinked(currentQuestions);
+			currentQuestions = learningGroups.flat();
 
 			currentQuestionIndex = 0;
 			userAnswers = {};
@@ -3339,7 +3503,7 @@ img {
                     <div class="uw-elapsed" id="uw-elapsed">⏱ Block Time Elapsed: 00:00:00</div>
                     <div class="uw-bottom-tools">
                         <button class="uw-bottom-tool is-end" onclick="if(confirm('End the block and return to the dashboard?')) { uwExitToHome(); }" title="End block">
-                            <span class="uw-bottom-tool-icon">⏹</span><span>End Block</span>
+                            <span class="uw-bottom-tool-icon">■</span><span>End Block</span>
                         </button>
                     </div>
                 </div>
@@ -3472,6 +3636,13 @@ async function loadExamCategories() {
 
     const paths = await buildCategoryTreeStructure(categoriesStructure);
 
+    // Skip the single top-level "... QBank" node — show its subjects directly.
+    let topItems = paths;
+    if (paths.length === 1 && paths[0].hasChildren) {
+        const kids = await loadCategoryChildren(paths[0]);
+        if (kids && kids.length) topItems = kids;
+    }
+
     const container = document.getElementById('exam-categories');
     container.innerHTML = '';
     selectedCategories.clear();
@@ -3479,7 +3650,7 @@ async function loadExamCategories() {
     const treeDiv = document.createElement('div');
     treeDiv.className = 'tree-view';
 
-    await renderExamTree(paths, treeDiv);
+    await renderExamTree(topItems, treeDiv);
     container.appendChild(treeDiv);
 
     updateSelectedInfo();
@@ -3488,7 +3659,8 @@ async function loadExamCategories() {
 async function renderExamTree(items, container, level = 0) {
     for (const item of items) {
         const nodeDiv = document.createElement('div');
-        nodeDiv.className = 'tree-node';
+        // Match Learning-mode topic styling (bold subjects via is-subject etc.)
+        nodeDiv.className = 'tree-node' + (item.hasChildren ? (item.type === 'subject' ? ' is-subject' : ' is-group') : ' is-leaf');
         nodeDiv.style.marginLeft = `${level * 20}px`;
 
         const labelDiv = document.createElement('div');
@@ -3499,15 +3671,15 @@ async function renderExamTree(items, container, level = 0) {
             let checkbox = null;
 
             // Allow selecting whole systems as a topic
-            if (item.type === 'system') {
+            if (item.type === 'system' || item.type === 'subject') {
                 checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'tree-checkbox';
 
-                const categoryType = 'system';
+                const categoryType = item.type; // 'system' or whole 'subject'
                 const categoryDbId = item.id;
-                const systemId = item.id;
-                const subjectId = '';
+                const systemId = item.type === 'system' ? item.id : '';
+                const subjectId = item.type === 'subject' ? item.id : '';
 
                 const categoryId = `${item.path}|||${categoryType}|||${categoryDbId}|||${systemId}`;
 
@@ -3750,9 +3922,11 @@ function updateSelectedInfo() {
 
 			let query;
 			if (categoryType === 'subject' && systemId) {
-				query = `SELECT id FROM Questions WHERE subId = ${categoryDbId} AND sysId = ${systemId} ORDER BY RANDOM()`;
+				query = `SELECT id FROM Questions WHERE subId = ${categoryDbId} AND sysId = ${systemId} ORDER BY id`;
+			} else if (categoryType === 'subject') {
+				query = `SELECT id FROM Questions WHERE subId = ${categoryDbId} ORDER BY id`;
 			} else if (categoryType === 'system') {
-				query = `SELECT id FROM Questions WHERE sysId = ${categoryDbId} ORDER BY RANDOM()`;
+				query = `SELECT id FROM Questions WHERE sysId = ${categoryDbId} ORDER BY id`;
 			}
 
 			const result = currentDatabase.exec(query);
@@ -3769,13 +3943,28 @@ function updateSelectedInfo() {
 			}
 		}
 
+            // De-duplicate (a whole-subject pick may overlap selected systems).
+            const __seenQ = new Set();
+            currentQuestions = currentQuestions.filter(q => {
+                const k = q.dbPath + '#' + q.id;
+                if (__seenQ.has(k)) return false;
+                __seenQ.add(k); return true;
+            });
+
             if (currentQuestions.length === 0) {
                 alert('No questions available for selected topics');
                 return;
             }
 
-            currentQuestions.sort(() => Math.random() - 0.5);
-            currentQuestions = currentQuestions.slice(0, numQuestions);
+            // Shuffle by group so linked "Item X of N" sets stay together and in
+            // order, then pick up to numQuestions without ever splitting a set.
+            const examGroups = await groupAndShuffleLinked(currentQuestions);
+            const picked = [];
+            for (const g of examGroups) {
+                if (picked.length + g.length <= numQuestions) picked.push(...g);
+                if (picked.length >= numQuestions) break;
+            }
+            currentQuestions = picked;
 
             currentQuestionIndex = 0;
             userAnswers = {};
@@ -3901,7 +4090,7 @@ function updateSelectedInfo() {
                             <span class="uw-bottom-tool-icon">📊</span><span>Finish</span>
                         </button>
                         <button class="uw-bottom-tool is-end" onclick="if(confirm('End the block and return to the dashboard?')) { uwExitToHome(); }" title="End block">
-                            <span class="uw-bottom-tool-icon">⏹</span><span>End Block</span>
+                            <span class="uw-bottom-tool-icon">■</span><span>End Block</span>
                         </button>
                     </div>
                 </div>
@@ -4302,6 +4491,52 @@ function updateSelectedInfo() {
             return div.innerHTML;
         }
 
+        // Some DB records reference a media file under a slightly wrong name
+        // (bogus "highresdefault_" prefix, or .JPG vs .jpg). Build an ordered
+        // list of likely real filenames so a broken <img> can retry.
+        function mediaCandidates(filename) {
+            const out = [];
+            const add = f => { if (f && out.indexOf(f) === -1) out.push(f); };
+            const bases = [filename, filename.replace(/^highresdefault_/, '')];
+            bases.forEach(n => {
+                add(n);
+                const dot = n.lastIndexOf('.');
+                const stem = dot >= 0 ? n.slice(0, dot) : n;
+                const cleanStem = stem.replace(/^highresdefault_/, '');
+                ['.jpg', '.JPG', '.jpeg', '.png', '.PNG', '.gif'].forEach(ext => {
+                    add(stem + ext);
+                    add(cleanStem + ext);
+                    add('highresdefault_' + cleanStem + ext);
+                });
+            });
+            return out;
+        }
+
+        function maTryNextMedia(img) {
+            try {
+                const base = img.getAttribute('data-ma-base') || '';
+                const cands = JSON.parse(img.getAttribute('data-ma-cands') || '[]');
+                let idx = parseInt(img.getAttribute('data-ma-idx') || '0', 10) + 1;
+                if (idx < cands.length) {
+                    img.setAttribute('data-ma-idx', String(idx));
+                    img.src = base + cands[idx];
+                } else {
+                    img.onerror = null;
+                    img.removeAttribute('onerror');
+                }
+            } catch (e) { img.onerror = null; }
+        }
+
+        function applyMediaFallback(img, filename) {
+            const base = `./assets/Data/${currentDatabasePath}/media/`;
+            const cands = mediaCandidates(filename);
+            img.setAttribute('src', base + cands[0]);
+            img.setAttribute('data-ma-base', base);
+            img.setAttribute('data-ma-cands', JSON.stringify(cands));
+            img.setAttribute('data-ma-idx', '0');
+            img.setAttribute('onerror', 'maTryNextMedia(this)');
+        }
+
         function processImagesInHTML(html) {
             if (!html || !currentDatabasePath) return html;
 
@@ -4313,8 +4548,7 @@ function updateSelectedInfo() {
                 const src = img.getAttribute('src');
                 if (src && !src.startsWith('http') && !src.startsWith('assets/Data/') && !src.startsWith('./assets/Data/')) {
                     const filename = src.split('/').pop().split('\\').pop();
-                    const fullPath = `./assets/Data/${currentDatabasePath}/media/${filename}`;
-                    img.setAttribute('src', fullPath);
+                    applyMediaFallback(img, filename);
                 }
                 img.classList.add('option-image');
                 img.addEventListener('click', () => openMediaModal(img.getAttribute('src'), img.getAttribute('alt') || ''));
@@ -4333,8 +4567,7 @@ function updateSelectedInfo() {
                 const src = img.getAttribute('src');
                 if (src && !src.startsWith('http') && !src.startsWith('assets/Data/') && !src.startsWith('./assets/Data/')) {
                     const filename = src.split('/').pop().split('\\').pop();
-                    const fullPath = `./assets/Data/${currentDatabasePath}/media/${filename}`;
-                    img.setAttribute('src', fullPath);
+                    applyMediaFallback(img, filename);
                 }
                 img.classList.add('option-image');
                 // NOTE: do NOT attach addEventListener here — temp.innerHTML
