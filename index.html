@@ -715,18 +715,19 @@ html.dark .tree-view{background:var(--card);border-color:var(--border)}
   position: fixed;
   left: 0;
   right: 0;
-  bottom: -100%;
+  bottom: 0;
+  transform: translateY(110%);
   background: #ffffff;
   padding: 28px 22px;
   text-align: center;
-  transition: 0.35s;
+  transition: transform 0.35s;
   box-shadow: 0 -2px 20px rgba(0,0,0,0.2);
   border-radius: 18px 18px 0 0;
   z-index: 99999;
 }
 
 .custom-modal.active {
-  bottom: 0;
+  transform: translateY(0);
 }
 
 .modal-title {
@@ -2541,15 +2542,15 @@ img {
         function uwClearSessionData() {
             try {
                 const keysToRemove = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
                     if (!key) continue;
                     // Wipe quiz session keys; keep user-preference keys.
                     if (key.startsWith('HL_') || key.startsWith('MA_FLAG')) {
                         keysToRemove.push(key);
                     }
                 }
-                keysToRemove.forEach(k => localStorage.removeItem(k));
+                keysToRemove.forEach(k => sessionStorage.removeItem(k));
                 // Also clear in-memory answer state so it cannot leak between
                 // sessions if the page is not fully reloaded.
                 try { if (typeof userAnswers !== 'undefined') userAnswers = {}; } catch (_) {}
@@ -2730,7 +2731,7 @@ img {
                 const ans = userAnswers[q.id];
                 const isCurrent = i === currentQuestionIndex;
                 const flagKey = 'MA_FLAG|||' + q.dbPath + '|||' + q.id;
-                const isFlagged = localStorage.getItem(flagKey) === 'true';
+                const isFlagged = sessionStorage.getItem(flagKey) === 'true';
                 let cls = 'uw-q-item';
                 if (isCurrent) cls += ' is-current';
                 if (ans) {
@@ -2757,9 +2758,9 @@ img {
         }
         function uwToggleMark(ev, flagKey) {
             ev.stopPropagation();
-            const isFlagged = localStorage.getItem(flagKey) === 'true';
-            if (isFlagged) localStorage.removeItem(flagKey);
-            else localStorage.setItem(flagKey, 'true');
+            const isFlagged = sessionStorage.getItem(flagKey) === 'true';
+            if (isFlagged) sessionStorage.removeItem(flagKey);
+            else sessionStorage.setItem(flagKey, 'true');
             uwRenderSidebar();
         }
         function uwInjectStrikeButtons() {
@@ -3436,7 +3437,7 @@ img {
             learningAnswered = (userAnswers[questionObj.id] !== undefined);
 
             const flagKey = `MA_FLAG|||${questionObj.dbPath}|||${questionObj.id}`;
-            const isFlagged = localStorage.getItem(flagKey) === 'true';
+            const isFlagged = sessionStorage.getItem(flagKey) === 'true';
             const total = currentQuestions.length;
             const idx = currentQuestionIndex + 1;
             const isLast = currentQuestionIndex === total - 1;
@@ -4039,7 +4040,7 @@ function updateSelectedInfo() {
             const idx = currentQuestionIndex + 1;
             const isLast = currentQuestionIndex === total - 1;
             const flagKey = `MA_FLAG|||${questionObj.dbPath}|||${questionObj.id}`;
-            const isFlagged = localStorage.getItem(flagKey) === 'true';
+            const isFlagged = sessionStorage.getItem(flagKey) === 'true';
 
             let html = `
                 <div class="uw-header">
@@ -4835,7 +4836,7 @@ function closeModals() {
     const key = computeStorageKey(stem);
     currentKey = key;
     try {
-      const saved = localStorage.getItem(key);
+      const saved = sessionStorage.getItem(key);
       if (saved) {
         stem.innerHTML = saved;
       }
@@ -4847,7 +4848,7 @@ function closeModals() {
   function saveHighlights() {
     if (!currentStem || !currentKey) return;
     try {
-      localStorage.setItem(currentKey, currentStem.innerHTML);
+      sessionStorage.setItem(currentKey, currentStem.innerHTML);
     } catch (e) {
       console.warn('Highlight save error', e);
     }
