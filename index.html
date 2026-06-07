@@ -209,10 +209,12 @@ a:hover{filter:brightness(.9)}
 .tree-node.is-group > .tree-label{font-weight:500}
 /* Two-column layout for the Learning Mode topic tree (the 5 subjects). */
 #learning-categories-tree .tree-view{
-  column-count: 2;
-  column-gap: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
   max-height: none;
 }
+#learning-categories-tree .tree-view > .tree-col{ flex: 1 1 0; min-width: 0; }
 /* Exam topic tree: taller frame so less scrolling after expanding a subject */
 #exam-categories .tree-view{
   max-height: 75vh;
@@ -224,7 +226,7 @@ a:hover{filter:brightness(.9)}
   display: block;
 }
 @media (max-width: 900px){
-  #learning-categories-tree .tree-view{ column-count: 1; }
+  #learning-categories-tree .tree-view{ flex-direction: column; }
 }
 .learning-start-bar{display:flex;align-items:center;gap:16px;margin-top:24px;padding:14px 18px;background:var(--card-bg,#fff);border:1px solid var(--border,#e0e0e0);border-radius:10px;position:sticky;bottom:16px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:50}
 .learning-selected-info{flex:1;font-size:14px;color:var(--text,#222);min-width:200px}
@@ -3073,14 +3075,18 @@ img {
 		}
 
 		function renderLearningCheckboxTree(tree, container) {
-			tree.forEach(subject => {
+			const colA = document.createElement('div'); colA.className = 'tree-col';
+			const colB = document.createElement('div'); colB.className = 'tree-col';
+			container.appendChild(colA); container.appendChild(colB);
+			const __per = Math.ceil(tree.length / 2);
+			tree.forEach((subject, idx) => {
 				const subjectNode = makeLearningTreeNode({
 					label: subject.name,
 					count: subject.count,
 					level: 0,
 					type: 'subject'
 				});
-				container.appendChild(subjectNode.nodeDiv);
+				(idx < __per ? colA : colB).appendChild(subjectNode.nodeDiv);
 
 				subject.children.forEach(group => {
 					const groupNode = makeLearningTreeNode({
