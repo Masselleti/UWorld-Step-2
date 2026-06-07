@@ -393,6 +393,14 @@ a:hover{filter:brightness(.9)}
 .commentary h4{color:#856404;margin-bottom:15px;font-size:1.2em}
 .commentary-content{line-height:1.8;color:#000!important}
 .commentary-content *{color:#000!important;background:transparent!important}
+/* Text INSIDE a hyperlink (e.g. <a><em>...</em></a>) must match the link color,
+   not the black .commentary-content * / dark stem rules. */
+.nbme-skin.uw-skin:not(.nbme-reverse) .question-stem a *,
+.nbme-skin.uw-skin:not(.nbme-reverse) .commentary-content a *,
+.nbme-skin.uw-skin:not(.nbme-reverse) .answer-option a * { color: #1f72b8 !important; }
+.nbme-skin.uw-skin.nbme-reverse .question-stem a *,
+.nbme-skin.uw-skin.nbme-reverse .commentary-content a *,
+.nbme-skin.uw-skin.nbme-reverse .answer-option a * { color: #6aa9ff !important; }
 
 .navigation{display:flex;justify-content:space-between;gap:15px;margin-top:30px;position:relative}
 .navigation button{padding:15px 35px;font-size:1.1em;border:none;border-radius:10px;cursor:pointer;background:var(--primary);color:#fff;font-weight:bold;transition:all .3s}
