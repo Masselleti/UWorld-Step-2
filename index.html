@@ -1305,7 +1305,8 @@ img {
         body.in-nbme-question .header,
         body.in-nbme-question #dark-toggle,
         body.in-nbme-question .ma-footer { display: none !important; }
-        body.in-nbme-question { padding: 0 !important; background: #fff !important; }
+        body.in-nbme-question { padding: 0 !important; background: #fff !important; height: 100vh; height: 100dvh; overflow: hidden !important; }
+html:has(body.in-nbme-question) { height: 100vh; height: 100dvh; overflow: hidden !important; }
         body.in-nbme-question .container {
             max-width: none !important; width: 100% !important;
             margin: 0 !important; padding: 0 !important;
@@ -1337,13 +1338,15 @@ img {
             display: grid !important;
             grid-template-rows: 50px 1fr 36px !important;
             grid-template-columns: 1fr !important;
-            min-height: 100vh !important;
+            min-height: 100vh !important; min-height: 100dvh !important;
             margin: 0 !important;
             padding: 0 !important;
             font-family: Arial, Helvetica, sans-serif !important;
             color: #222 !important;
             height: 100vh;
+            height: 100dvh;
             max-height: 100vh;
+            max-height: 100dvh;
             overflow: hidden;
         }
 
