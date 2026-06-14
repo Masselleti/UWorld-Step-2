@@ -2569,7 +2569,7 @@ html:has(body.in-nbme-question) { height: 100vh; height: 100dvh; overflow: hidde
                     const key = sessionStorage.key(i);
                     if (!key) continue;
                     // Wipe quiz session keys; keep user-preference keys.
-                    if (key.startsWith('HL_') || key.startsWith('MA_FLAG')) {
+                    if (key.startsWith('HL_') || key.startsWith('MA_FLAG') || key.startsWith('MA_STRIKE')) {
                         keysToRemove.push(key);
                     }
                 }
@@ -2790,8 +2790,34 @@ html:has(body.in-nbme-question) { height: 100vh; height: 100dvh; overflow: hidde
             else sessionStorage.setItem(flagKey, 'true');
             uwRenderSidebar();
         }
+        // Strike-outs persist for the session (like flags/highlights) under a
+        // per-question key, so navigating away and back keeps them. Cleared by
+        // uwClearSessionData() when the quiz ends.
+        function uwStrikeKey() {
+            const q = (typeof currentQuestions !== 'undefined') ? currentQuestions[currentQuestionIndex] : null;
+            return q ? ('MA_STRIKE|||' + q.dbPath + '|||' + q.id) : null;
+        }
+        function uwGetStruckSet(key) {
+            try { return new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); }
+            catch (e) { return new Set(); }
+        }
+        function uwToggleStrike(opt) {
+            opt.classList.toggle('eliminated');
+            const key = uwStrikeKey();
+            const optId = opt.getAttribute('data-option-id');
+            if (!key || optId == null) return;
+            const struck = uwGetStruckSet(key);
+            if (opt.classList.contains('eliminated')) struck.add(optId);
+            else struck.delete(optId);
+            sessionStorage.setItem(key, JSON.stringify([...struck]));
+        }
         function uwInjectStrikeButtons() {
+            const key = uwStrikeKey();
+            const struck = key ? uwGetStruckSet(key) : new Set();
             document.querySelectorAll('.nbme-skin.uw-skin .answer-option').forEach(opt => {
+                // Restore any strike-out saved earlier this session.
+                const optId = opt.getAttribute('data-option-id');
+                if (optId != null && struck.has(optId)) opt.classList.add('eliminated');
                 if (opt.querySelector('.uw-strike-btn')) return;
                 const strike = document.createElement('span');
                 strike.className = 'uw-strike-btn';
@@ -2799,7 +2825,7 @@ html:has(body.in-nbme-question) { height: 100vh; height: 100dvh; overflow: hidde
                 strike.title = 'Strike out this choice';
                 strike.onclick = (e) => {
                     e.stopPropagation();
-                    opt.classList.toggle('eliminated');
+                    uwToggleStrike(opt);
                 };
                 opt.appendChild(strike);
                 // Right-click anywhere on a choice strikes it out; right-click
@@ -2807,7 +2833,7 @@ html:has(body.in-nbme-question) { height: 100vh; height: 100dvh; overflow: hidde
                 opt.oncontextmenu = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    opt.classList.toggle('eliminated');
+                    uwToggleStrike(opt);
                     return false;
                 };
             });
